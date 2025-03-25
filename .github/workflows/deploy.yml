@@ -29,23 +29,23 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '23.4.0'
-        cache: 'pnpm'
+        cache: 'npm'
     
     # 安装依赖
     - name: Install Dependencies
-      run: pnpm ci
+      run: npm ci
     
     # 代码格式检查
     - name: Lint Code
-      run: pnpm run lint
+      run: npm run lint
     
     # 运行单元测试
     - name: Run Unit Tests
-      run: pnpm run test:unit
+      run: npm run test:unit
     
     # 代码覆盖率检查
     - name: Check Test Coverage
-      run: pnpm run test:coverage
+      run: npm run test:coverage
 
   # 构建与部署作业
   build-and-deploy:
