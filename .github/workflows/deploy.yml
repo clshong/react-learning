@@ -1,0 +1,109 @@
+name: React Project CI/CD Pipeline
+
+# 触发时机
+on:
+  # 当 main 分支推送代码时触发
+  push:
+    branches: [ main, develop ]
+  
+  # 当针对 main 分支创建 PR 时触发
+  pull_request:
+    branches: [ main ]
+  
+  # 手动触发工作流
+  workflow_dispatch:
+
+# 定义作业
+jobs:
+  # 代码检查与测试作业
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 检出代码
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    # 设置 Node.js 环境
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'pnpm'
+    
+    # 安装依赖
+    - name: Install Dependencies
+      run: pnpm ci
+    
+    # 代码格式检查
+    - name: Lint Code
+      run: pnpm run lint
+    
+    # 运行单元测试
+    - name: Run Unit Tests
+      run: pnpm run test:unit
+    
+    # 代码覆盖率检查
+    - name: Check Test Coverage
+      run: pnpm run test:coverage
+
+  # 构建与部署作业
+  build-and-deploy:
+    needs: code-quality
+    runs-on: ubuntu-latest
+    
+    # 只在 main 分支上执行部署
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install Dependencies
+      run: npm ci
+    
+    # 构建生产包
+    - name: Build Production Package
+      run: npm run build
+      env:
+        VITE_APP_ENV: production
+    
+    # 配置 SSH
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
+    
+    # 部署到服务器
+    - name: Deploy to Production Server
+      run: |
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        scp -r dist/* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/html/react-app
+    
+    # 发布到云服务
+    - name: Deploy to Vercel
+      uses: vercel/action@v2
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  # 性能分析作业
+  performance-check:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        urls: |
+          https://yourwebsite.com
+        uploadArtifacts: true
+        temporaryPublicStorage: true
