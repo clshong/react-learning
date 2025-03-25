@@ -1,13 +1,9 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { resolve } from 'path'
 
 export default defineConfig((mode) => {
-  const root = process.cwd();
-  const env = loadEnv(mode, root);
-  const { VITE_SERVER_PORT, VITE_PROXY } = env;
-
   return {
     plugins: [
       react(),
@@ -58,12 +54,12 @@ export default defineConfig((mode) => {
     },
     // 开发服务器配置
     server: {
-      port: VITE_SERVER_PORT,
+      port: 8000,
       open: true,
       host: '0.0.0.0',
       proxy: {
         '/api': {
-          target: VITE_PROXY,
+          target: 'http://localhost:8080',
           changeOrigin: true
         }
       }
