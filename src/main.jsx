@@ -9,7 +9,4 @@ createRoot(document.getElementById('root')).render(
   <App />
 
 )
-function sendToAnalytics(metric) {
-  console.log(metric);
-}
 
