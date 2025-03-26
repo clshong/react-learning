@@ -1,7 +1,6 @@
-import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
-const RequireAuth = ({ children, requiredPermission }) => {
+const RequireAuth = (children: any, requiredPermission: string) => {
     const location = useLocation();
     const isAuthenticated = !!localStorage.getItem('token');
     // 模拟获取当前用户权限，实际场景下可从 context、redux 或 API 中获取

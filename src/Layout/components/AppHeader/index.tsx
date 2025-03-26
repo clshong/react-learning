@@ -1,21 +1,15 @@
-// src/layout/NavHeader/index.tsx
-import React from 'react'
-import { useState } from 'react'
-import { Breadcrumb, Dropdown, Switch } from 'antd'
-
+import { FC } from "react"
+import { Layout, Button, Switch, Dropdown, Space } from 'antd'
+import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons'
+import { ThemeProps } from '../../types'
+import { useLayout } from '../../../store/index'
+import { AppBreadcrumb } from '../index'
 import style from './index.module.less'
 import { DownOutlined } from '@ant-design/icons'
-import { Space } from 'antd'
 
-const NavHeader = () => {
-    const [items, setItems] = useState([
-        {
-            title: 'Home',
-        },
-        {
-            title: '工作台',
-        },
-    ])
+const NavHeader: FC<ThemeProps> = () => {
+    const { Header } = Layout
+    const { collapsed, changeCollapsed } = useLayout()
     const menuItems = [
         {
             label: `邮箱：Charles@x.cn`,
@@ -26,13 +20,22 @@ const NavHeader = () => {
             key: '1',
         },
     ]
-
     return (
-        <div className={style.header}>
-            <div className={style.left}>
-                <Breadcrumb className={style.breadcrumb} items={items} />
+        <Header className={style.header}>
+            <div style={{ display: 'flex', alignItems: "center" }}>
+                <Button
+                    type="text"
+                    icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                    onClick={() => changeCollapsed()}
+                    style={{
+                        fontSize: '16px',
+                        width: 40,
+                        height: 64,
+                    }}
+                />
+                <AppBreadcrumb />
             </div>
-            <div className={style.right}>
+            <div>
                 <Switch
                     checkedChildren='默认'
                     unCheckedChildren='暗黑'
@@ -50,9 +53,8 @@ const NavHeader = () => {
                     </a>
                 </Dropdown>
             </div>
-        </div>
+        </Header >
     )
 }
 
-NavHeader.displayName = 'NavHeader'
 export default NavHeader
