@@ -2,9 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { visualizer } from "rollup-plugin-visualizer";
 import { resolve } from "path";
+import UnoCSS from "unocss/vite";
 
 export default defineConfig((mode) => {
-  console.log(mode);
   return {
     plugins: [
       react(),
@@ -12,6 +12,7 @@ export default defineConfig((mode) => {
         filename: "./stats.html",
         open: true,
       }),
+      UnoCSS(),
     ],
     resolve: {
       alias: {
